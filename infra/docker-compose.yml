@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  # zookeeper:
+  #   image: bitnami/zookeeper:3.9
+  #   container_name: zookeeper
+  #   environment:
+  #     ALLOW_ANONYMOUS_LOGIN: "yes"
+  #   ports:
+  #     - "2181:2181"
+
+  # kafka:
+  #   image: apache/kafka:3.9.1
+  #   container_name: kafka
+  #   environment:
+  #     KAFKA_NODE_ID: 1
+  #     KAFKA_PROCESS_ROLES: broker,controller
+  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+  #     KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+  #     KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  #     KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+  #   ports:
+  #     - "9092:9092"
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+    - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+    - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "ORDER_CREATED_EVENT:1:1,PAYMENT_COMPLETED_EVENT:1:1"
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: mini
+    ports:
+      - "5434:5432"
+    volumes:                # <-- attach a volume
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
